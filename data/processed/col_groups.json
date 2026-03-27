@@ -1,0 +1,34 @@
+{
+  "demo": [
+    "age",
+    "is_EU"
+  ],
+  "selfpres": [
+    "counts_pictures",
+    "counts_details",
+    "whazzup_len"
+  ],
+  "intent": [
+    "flirtInterests_chat",
+    "flirtInterests_friends",
+    "flirtInterests_date"
+  ],
+  "lang": [
+    "lang_count",
+    "lang_fr",
+    "lang_en",
+    "lang_de",
+    "lang_it",
+    "lang_es",
+    "lang_pt"
+  ],
+  "confound": [
+    "isVip",
+    "isHighlighted",
+    "isFlirtstar",
+    "isNew",
+    "isMobile",
+    "isOnline",
+    "isInfluencer"
+  ]
+}
