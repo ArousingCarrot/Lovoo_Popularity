@@ -1,0 +1,23 @@
+,OLS|PC1 (baseline),XGB|PC1 (baseline),OLS|Equal-weight sum,XGB|Equal-weight sum,OLS|profileVisits,XGB|profileVisits,OLS|kisses,XGB|kisses,OLS|fans,XGB|fans,OLS|g,XGB|g
+age,20,12,19,14,13,10,15,15,19,14,19,16
+is_EU,19,14,5,11,6,19,4,13,15,20,1,12
+counts_pictures,2,2,2,2,2,2,2,2,4,4,9,5
+counts_details,18,7,12,7,18,6,13,5,6,7,18,9
+whazzup_len,10,3,6,3,12,3,8,3,9,11,20,3
+flirtInterests_chat,16,8,18,9,17,9,11,6,20,5,14,11
+flirtInterests_friends,8,10,9,10,20,11,17,11,3,8,5,10
+flirtInterests_date,15,13,16,18,19,12,14,16,14,15,15,8
+lang_count,7,4,7,6,14,7,9,8,12,13,6,7
+lang_fr,4,11,4,16,3,8,5,12,7,1,4,13
+lang_en,21,9,20,8,8,14,12,10,8,16,7,6
+lang_de,12,5,15,5,21,5,6,7,10,2,11,1
+lang_it,3,19,3,13,5,13,3,14,11,9,8,4
+lang_es,5,20,17,12,16,18,18,9,1,17,3,18
+lang_pt,6,18,21,20,4,17,10,17,2,20,2,21
+isVip,9,16,8,15,15,21,7,18,21,18,10,15
+isHighlighted,13,17,14,19,11,20,19,21,17,10,16,20
+isFlirtstar,14,21,13,21,10,16,20,21,18,20,17,19
+isNew,1,1,1,1,1,1,1,1,5,6,13,17
+isMobile,11,15,11,17,9,15,16,19,16,3,12,14
+isOnline,17,6,10,4,7,4,21,4,13,12,21,2
+isInfluencer,22,21,22,22,22,21,22,21,22,20,22,21

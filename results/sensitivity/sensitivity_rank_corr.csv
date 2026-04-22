@@ -1,0 +1,13 @@
+model,target,spearman_rho,p_value
+OLS,PC1 (baseline),1.0,0.0
+OLS,Equal-weight sum,0.6126,0.0024
+OLS,profileVisits,0.4512,0.0351
+OLS,kisses,0.5426,0.0091
+OLS,fans,0.5799,0.0047
+OLS,g,0.4862,0.0218
+XGBoost,PC1 (baseline),1.0,0.0
+XGBoost,Equal-weight sum,0.8947,0.0
+XGBoost,profileVisits,0.8924,0.0
+XGBoost,kisses,0.8657,0.0
+XGBoost,fans,0.5777,0.0049
+XGBoost,g,0.641,0.0013

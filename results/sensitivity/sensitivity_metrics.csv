@@ -1,0 +1,13 @@
+target,model,pearson_r,mae,rmse
+PC1 (baseline),OLS,0.6867,0.796,1.0729
+PC1 (baseline),XGBoost,0.7248,0.7603,1.017
+Equal-weight sum,OLS,0.7074,2.1831,2.8424
+Equal-weight sum,XGBoost,0.7462,2.0822,2.6768
+profileVisits,OLS,0.7204,1.01,1.351
+profileVisits,XGBoost,0.7775,0.9305,1.2257
+kisses,OLS,0.662,1.0704,1.3485
+kisses,XGBoost,0.703,1.0068,1.2802
+fans,OLS,0.3085,0.5179,0.7739
+fans,XGBoost,0.3537,0.5053,0.761
+g,OLS,0.2479,0.0929,0.2375
+g,XGBoost,0.3546,0.0818,0.2293
