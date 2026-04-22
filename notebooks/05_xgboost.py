@@ -29,7 +29,7 @@ RANDOM_STATE = 42
 N_FOLDS = 5
 
 # ---------------------------------------------------------------------------
-# Data
+# Load data
 # ---------------------------------------------------------------------------
 
 def load_data():
@@ -86,7 +86,7 @@ def main():
         "reg_alpha": [0, 1],
     }
 
-    base_model = XGBRegressor(
+    model = XGBRegressor(
         random_state=RANDOM_STATE,
         objective="reg:squarederror",
         n_jobs=-1
@@ -95,7 +95,7 @@ def main():
     cv = KFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
 
     grid = GridSearchCV(
-        base_model,
+        model,
         param_grid,
         cv=cv,
         scoring="neg_root_mean_squared_error",
@@ -111,7 +111,7 @@ def main():
     print(grid.best_params_)
 
     # -----------------------------------------------------------------------
-    # Save trained model + metadata
+    # Save model + metadata
     # -----------------------------------------------------------------------
 
     joblib.dump(best_model, RESULTS_DIR / "xgb_model.joblib")
@@ -123,29 +123,40 @@ def main():
         json.dump(grid.best_params_, f, indent=2)
 
     # -----------------------------------------------------------------------
-    # Final evaluation (TEST SET)
+    # Predictions (THIS IS WHAT YOU ASKED FOR)
     # -----------------------------------------------------------------------
 
     pred_test = best_model.predict(X_test)
-    test_metrics = compute_metrics(y_test.to_numpy(), pred_test)
+
+    pred_df = pd.DataFrame({
+        "y_true": y_test.values,
+        "y_pred": pred_test,
+        "residual": y_test.values - pred_test,
+        "abs_error": np.abs(y_test.values - pred_test)
+    })
+
+    pred_df.to_csv(RESULTS_DIR / "xgb_predictions.csv", index=False)
+
+    # -----------------------------------------------------------------------
+    # Metrics
+    # -----------------------------------------------------------------------
+
+    test_metrics = compute_metrics(y_test.values, pred_test)
 
     print(f"\nTest — r={test_metrics['pearson_r']:.4f} "
           f"MAE={test_metrics['mae']:.4f} "
           f"RMSE={test_metrics['rmse']:.4f}")
 
     # -----------------------------------------------------------------------
-    # XGBoost feature importance (gain)
+    # XGBoost gain importance
     # -----------------------------------------------------------------------
 
-    gain_importance = pd.DataFrame({
+    gain_df = pd.DataFrame({
         "feature": X.columns,
         "gain_importance": best_model.feature_importances_
     }).sort_values("gain_importance", ascending=False)
 
-    gain_importance.to_csv(
-        RESULTS_DIR / "xgb_gain_importance.csv",
-        index=False
-    )
+    gain_df.to_csv(RESULTS_DIR / "xgb_gain_importance.csv", index=False)
 
     # -----------------------------------------------------------------------
     # SHAP (Tree SHAP, interventional)
@@ -160,35 +171,30 @@ def main():
 
     shap_values = explainer(X_test)
 
-    shap_importance = pd.DataFrame({
+    shap_df = pd.DataFrame({
         "feature": X.columns,
         "mean_abs_shap": np.abs(shap_values.values).mean(axis=0)
     }).sort_values("mean_abs_shap", ascending=False)
 
-    shap_importance.to_csv(
-        RESULTS_DIR / "shap_importance.csv",
-        index=False
-    )
+    shap_df.to_csv(RESULTS_DIR / "shap_importance.csv", index=False)
 
     # -----------------------------------------------------------------------
-    # SHAP interaction values
+    # SHAP interactions
     # -----------------------------------------------------------------------
 
     print("Computing SHAP interaction values...")
 
     shap_interaction = explainer.shap_interaction_values(X_test)
 
-    interaction_strength = np.abs(shap_interaction).mean(axis=0)
+    interaction_matrix = np.abs(shap_interaction).mean(axis=0)
 
     interaction_df = pd.DataFrame(
-        interaction_strength,
+        interaction_matrix,
         index=X.columns,
         columns=X.columns
     )
 
-    interaction_df.to_csv(
-        RESULTS_DIR / "shap_interactions_matrix.csv"
-    )
+    interaction_df.to_csv(RESULTS_DIR / "shap_interactions_matrix.csv")
 
     # -----------------------------------------------------------------------
     # Save metrics
