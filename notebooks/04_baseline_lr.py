@@ -31,6 +31,11 @@ def load_data() -> tuple[pd.DataFrame, pd.Series]:
     y_df = pd.read_csv(DATA_DIR / "y.csv")
     validate_target_column(y_df)
     y = y_df["popularity_score"]
+    
+    # KEEP ONLY SELF-PRESENTATION FEATURES
+    self_pres_cols = ["counts_pictures", "counts_details", "whazzup_len"]
+    X = X[[col for col in self_pres_cols if col in X.columns]]
+    
     return X, y
 
 
@@ -80,6 +85,62 @@ def cross_validate_model(X: pd.DataFrame, y: pd.Series) -> dict:
         "cv_rmse_mean": float(np.mean(fold_rmse)),
         "cv_rmse_std": float(np.std(fold_rmse, ddof=1)),
     }
+
+
+def evaluate_robustness(X: pd.DataFrame, y: pd.Series) -> dict:
+    print("\nRunning Robustness Evaluation...")
+    results = {}
+    
+    continuous_features = ["age", "counts_pictures", "counts_details", "whazzup_len", "lang_count"]
+    continuous_features = [c for c in continuous_features if c in X.columns]
+
+    def eval_modified_dataset(X_mod, split_seed=RANDOM_STATE):
+        X_tr, X_te, y_tr, y_te = train_test_split(X_mod, y, test_size=TEST_SIZE, random_state=split_seed)
+        model = LinearRegression().fit(X_tr, y_tr)
+        preds = model.predict(X_te)
+        return compute_metrics(y_te.to_numpy(), preds)
+
+    seeds = [42, 100, 200, 300, 400]
+    split_mae, split_r = [], []
+    for seed in seeds:
+        m = eval_modified_dataset(X, split_seed=seed)
+        split_mae.append(m["mae"])
+        split_r.append(m["pearson_r"])
+    
+    results["repeated_splits"] = {
+        "mae_mean": float(np.mean(split_mae)), "mae_std": float(np.std(split_mae, ddof=1)),
+        "r_mean": float(np.mean(split_r)), "r_std": float(np.std(split_r, ddof=1))
+    }
+    print(f"  Repeated Splits (5) : r={results['repeated_splits']['r_mean']:.4f} ± {results['repeated_splits']['r_std']:.4f}")
+
+    noise_levels = [0.05, 0.10, 0.20]
+    for noise_pct in noise_levels:
+        X_noisy = X.copy()
+        for col in continuous_features:
+            col_range = X[col].max() - X[col].min()
+            sigma = noise_pct * col_range
+            noise = np.random.normal(0, sigma, size=len(X))
+            X_noisy[col] = X_noisy[col] + noise
+        
+        m = eval_modified_dataset(X_noisy)
+        results[f"noise_{int(noise_pct*100)}pct"] = {"mae": m["mae"], "r": m["pearson_r"]}
+        print(f"  Noise ({int(noise_pct*100)}%)        : r={m['pearson_r']:.4f}  MAE={m['mae']:.4f}")
+
+    X_outliers = X.copy()
+    n_outliers = int(0.05 * len(X))
+    for col in continuous_features:
+        col_mean = X[col].mean()
+        col_std = X[col].std()
+        outlier_val = col_mean + (3 * col_std)
+        
+        outlier_idx = np.random.choice(X.index, size=n_outliers, replace=False)
+        X_outliers.loc[outlier_idx, col] = outlier_val
+        
+    m = eval_modified_dataset(X_outliers)
+    results["outliers_5pct"] = {"mae": m["mae"], "r": m["pearson_r"]}
+    print(f"  Outliers (5%)       : r={m['pearson_r']:.4f}  MAE={m['mae']:.4f}")
+
+    return results
 
 
 # ---------------------------------------------------------------------------
@@ -150,6 +211,8 @@ def main() -> None:
     print(f"\nRunning {N_FOLDS}-fold cross-validation (full dataset)...")
     cv_results = cross_validate_model(X, y)
 
+    robustness_results = evaluate_robustness(X, y)
+
     all_metrics = {
         "n_samples": n_samples,
         "n_features": n_features,
@@ -159,6 +222,7 @@ def main() -> None:
         "test_mae": test_metrics["mae"],
         "test_rmse": test_metrics["rmse"],
         **cv_results,
+        "robustness": robustness_results
     }
 
     save_metrics(all_metrics, RESULTS_DIR / "baseline_lr_metrics.json")
@@ -177,6 +241,9 @@ def main() -> None:
           f"± {cv_results['cv_pearson_r_std']:.4f}  "
           f"RMSE={cv_results['cv_rmse_mean']:.4f} "
           f"± {cv_results['cv_rmse_std']:.4f}")
+    print(f"  Robustness (splits): r={robustness_results['repeated_splits']['r_mean']:.4f} "
+          f"± {robustness_results['repeated_splits']['r_std']:.4f}")
+    
     print(f"\nArtifacts saved to {RESULTS_DIR}/")
 
 
