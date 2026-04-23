@@ -1,0 +1,75 @@
+{
+  "n_samples": 3992,
+  "n_features": 22,
+  "feature_names": [
+    "age",
+    "is_EU",
+    "counts_pictures",
+    "counts_details",
+    "whazzup_len",
+    "flirtInterests_chat",
+    "flirtInterests_friends",
+    "flirtInterests_date",
+    "lang_count",
+    "lang_fr",
+    "lang_en",
+    "lang_de",
+    "lang_it",
+    "lang_es",
+    "lang_pt",
+    "isVip",
+    "isHighlighted",
+    "isFlirtstar",
+    "isNew",
+    "isMobile",
+    "isOnline",
+    "isInfluencer"
+  ],
+  "test_size": 0.2,
+  "random_state": 42,
+  "test_pearson_r": 0.6867256053644194,
+  "test_mae": 0.7959780038021739,
+  "test_rmse": 1.0728849312041053,
+  "cv_pearson_r_folds": [
+    0.6867256053644192,
+    0.6725597952058558,
+    0.6570390428680286,
+    0.6790930539385808,
+    0.677335841500054
+  ],
+  "cv_rmse_folds": [
+    1.0728849312041053,
+    1.0502894701156829,
+    1.1939508654978686,
+    1.0960198346904446,
+    1.0508749204179524
+  ],
+  "cv_pearson_r_mean": 0.6745506677753876,
+  "cv_pearson_r_std": 0.011036758474673445,
+  "cv_rmse_mean": 1.0928040043852107,
+  "cv_rmse_std": 0.059588866955954625,
+  "robustness": {
+    "repeated_splits": {
+      "mae_mean": 0.7969404760067916,
+      "mae_std": 0.009959201917574677,
+      "r_mean": 0.6771369906415359,
+      "r_std": 0.013546434390879016
+    },
+    "noise_5pct": {
+      "mae": 0.8068296248767218,
+      "r": 0.6773779685263938
+    },
+    "noise_10pct": {
+      "mae": 0.815909134009769,
+      "r": 0.6690949328001109
+    },
+    "noise_20pct": {
+      "mae": 0.8349462909239063,
+      "r": 0.6394050521241256
+    },
+    "outliers_5pct": {
+      "mae": 0.8123745970059327,
+      "r": 0.6748674993835709
+    }
+  }
+}
